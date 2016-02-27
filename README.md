@@ -1,5 +1,5 @@
-#TODO
-Add open source license! (now it time to tidy my room)
+#TODO Add open source license! (now it time to tidy my room)
+
 
 Currency Converter, source file fom ECB
 
