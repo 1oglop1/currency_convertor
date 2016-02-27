@@ -15,16 +15,12 @@ def update_local_rates():
     return tree
 
 
-def convert_amount(amount, in_curr, currency_root, out_curr=None):
+def convert_amount(amount, in_curr, currency_root, out_curr):
     path = "{{http://www.ecb.int/vocabulary/2002-08-01/eurofxref}}Cube/.[@currency='{c}']"
 
     in_curr = currency_root.find(path.format(c=in_curr)).attrib
     in_curr_rate = float(in_curr['rate'])
     in_curr_currency = in_curr['currency']
-    if not out_curr:
-        out_curr = ['EUR', 'USD', 'JPY', 'BGN', 'CZK', 'DKK', 'GBP', 'HUF', 'PLN', 'RON', 'SEK', 'CHF', 'NOK',
-                    'HRK', 'RUB', 'TRY', 'AUD', 'BRL', 'CAD', 'CNY', 'HKD', 'IDR', 'ILS', 'INR', 'KRW', 'MXN',
-                    'MYR', 'NZD', 'PHP', 'SGD', 'THB', 'ZAR']
 
     for oc in out_curr:
         try:
@@ -44,19 +40,22 @@ def convert_amount(amount, in_curr, currency_root, out_curr=None):
             else:
                 print('Cannot convert from {fr} to {to}'.format(fr=in_curr_currency, to=oc), file=sys.stderr)
             continue
-
+# a
 def cmd_args():
     parser = argparse.ArgumentParser(description='Currency Converter, source file fom ECB')
     parser.add_argument('amount', metavar='<amount>', type=float,
                        help='Amount to be converted')
-    parser.add_argument('from', metavar='<from>',
+    parser.add_argument('fr', metavar='<from>',
                        help='Input currency')
 
-    parser.add_argument('to', metavar='<to>', nargs='?',
+    parser.add_argument('to', metavar='<to>', nargs='*',
+                        default= ['EUR', 'USD', 'JPY', 'BGN', 'CZK', 'DKK', 'GBP', 'HUF', 'PLN', 'RON', 'SEK', 'CHF', 'NOK',
+                                  'HRK', 'RUB', 'TRY', 'AUD', 'BRL', 'CAD', 'CNY', 'HKD', 'IDR', 'ILS', 'INR', 'KRW', 'MXN',
+                                  'MYR', 'NZD', 'PHP', 'SGD', 'THB', 'ZAR'],
                        help='Output currency(ies), EUR, CZK...')
 
     parser.add_argument('-json',
-                        action='store_false',
+                        action='store_true',
 
                         help='generate json output')
 
@@ -70,7 +69,6 @@ def main():
 
     # load currency file
     try:
-        print(os.getcwd())
         tree = et.parse('local_rates.xml')
     except OSError:  # can't parse file because it not exist
         tree = update_local_rates()
@@ -86,8 +84,20 @@ def main():
 
     cube = root[2][0]
 
-    output_dict = dict((k, v) for (k, v) in convert_amount(10, 'CZK', cube))
-    print(output_dict)
+    converted_dict = dict((k, v) for (k, v) in convert_amount(10, args.fr , cube, args.to))
+
+    output = { "input": { "amount": args.amount, "currency": args.fr},
+          "output": converted_dict
+    }
+
+    if args.json:
+        with open('currency.json', 'w') as oj:
+            for chunk in json.JSONEncoder(sort_keys=True, indent=4).iterencode(output):
+                oj.write(chunk)
+    else:
+        print(json.dumps(output, sort_keys=True, indent=4))
+
+
 
 if __name__ == '__main__':
     main()
