@@ -1,5 +1,6 @@
-#TODO Add open source license! (now it time to tidy my room)
-
+#Add open source license! (now it time to tidy my room)
+Functions: 
+non_eur_convert and from_eur_convert - have some duplicated code, looking for option how to avoid this!
 
 Currency Converter, source file fom ECB
 
