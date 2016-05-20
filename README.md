@@ -1,4 +1,4 @@
-#Add open source license! (now it time to tidy my room)
+#use it as you like :)
 Functions: 
 non_eur_convert and from_eur_convert - have some duplicated code, looking for option how to avoid this!
 
